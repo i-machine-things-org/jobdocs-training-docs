@@ -1,0 +1,597 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>TrainingTab</class>
+ <widget class="QWidget" name="TrainingTab">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>880</width>
+    <height>650</height>
+   </rect>
+  </property>
+  <layout class="QVBoxLayout" name="mainLayout">
+   <property name="spacing">
+    <number>3</number>
+   </property>
+   <property name="leftMargin">
+    <number>3</number>
+   </property>
+   <property name="topMargin">
+    <number>3</number>
+   </property>
+   <property name="rightMargin">
+    <number>3</number>
+   </property>
+   <property name="bottomMargin">
+    <number>3</number>
+   </property>
+   <item>
+    <widget class="QTabWidget" name="training_tab_widget">
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+
+     <!-- ===== CREATE GUIDE TAB ===== -->
+     <widget class="QWidget" name="createGuideTab">
+      <attribute name="title">
+       <string>Create Guide</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="createGuideLayout">
+       <property name="spacing">
+        <number>5</number>
+       </property>
+       <property name="leftMargin">
+        <number>5</number>
+       </property>
+       <property name="topMargin">
+        <number>5</number>
+       </property>
+       <property name="rightMargin">
+        <number>5</number>
+       </property>
+       <property name="bottomMargin">
+        <number>5</number>
+       </property>
+
+       <!-- Guide Information Group -->
+       <item>
+        <widget class="QGroupBox" name="guideInfoGroup">
+         <property name="title">
+          <string>Guide Information</string>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>200</height>
+          </size>
+         </property>
+         <layout class="QGridLayout" name="guideInfoLayout">
+          <property name="spacing">
+           <number>5</number>
+          </property>
+          <property name="leftMargin">
+           <number>8</number>
+          </property>
+          <property name="topMargin">
+           <number>8</number>
+          </property>
+          <property name="rightMargin">
+           <number>8</number>
+          </property>
+          <property name="bottomMargin">
+           <number>8</number>
+          </property>
+
+          <!-- Row 0: Guide Number -->
+          <item row="0" column="0">
+           <widget class="QLabel" name="guideNumLabel">
+            <property name="text">
+             <string>Guide #:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <layout class="QHBoxLayout" name="guideNumLayout">
+            <item>
+             <widget class="QLineEdit" name="guide_number_edit">
+              <property name="placeholderText">
+               <string>e.g., TG001</string>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>120</width>
+                <height>16777215</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="auto_gen_btn">
+              <property name="text">
+               <string>Auto</string>
+              </property>
+              <property name="toolTip">
+               <string>Auto-generate next guide number</string>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>50</width>
+                <height>16777215</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="guideNumSpacer">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+
+          <!-- Row 1: Title -->
+          <item row="1" column="0">
+           <widget class="QLabel" name="titleLabel">
+            <property name="text">
+             <string>Title:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="title_edit">
+            <property name="placeholderText">
+             <string>Training guide title (required)</string>
+            </property>
+           </widget>
+          </item>
+
+          <!-- Row 2: Category + Revision -->
+          <item row="2" column="0">
+           <widget class="QLabel" name="categoryLabel">
+            <property name="text">
+             <string>Category:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <layout class="QHBoxLayout" name="categoryRevLayout">
+            <item>
+             <widget class="QComboBox" name="category_combo">
+              <property name="editable">
+               <bool>true</bool>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>150</width>
+                <height>0</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="revisionLabel">
+              <property name="text">
+               <string>  Revision:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="revision_edit">
+              <property name="placeholderText">
+               <string>e.g., 1.0</string>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>80</width>
+                <height>16777215</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="catRevSpacer">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+
+          <!-- Row 3: Description -->
+          <item row="3" column="0">
+           <widget class="QLabel" name="descriptionLabel">
+            <property name="text">
+             <string>Description:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QLineEdit" name="description_edit">
+            <property name="placeholderText">
+             <string>Brief description of this training guide (optional)</string>
+            </property>
+           </widget>
+          </item>
+
+         </layout>
+        </widget>
+       </item>
+
+       <!-- Files Group -->
+       <item>
+        <widget class="QGroupBox" name="filesGroup">
+         <property name="title">
+          <string>Files</string>
+         </property>
+         <layout class="QVBoxLayout" name="filesLayout">
+          <property name="spacing">
+           <number>5</number>
+          </property>
+          <property name="leftMargin">
+           <number>8</number>
+          </property>
+          <property name="topMargin">
+           <number>8</number>
+          </property>
+          <property name="rightMargin">
+           <number>8</number>
+          </property>
+          <property name="bottomMargin">
+           <number>8</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="filesHintLabel">
+            <property name="text">
+             <string>Drop files here or use Add Files — PDFs, Word docs, images, etc.</string>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">color: #666; font-style: italic;</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QListWidget" name="guide_files_list">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>80</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="filesBtnLayout">
+            <item>
+             <widget class="QPushButton" name="add_files_btn">
+              <property name="text">
+               <string>Add Files...</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="remove_file_btn">
+              <property name="text">
+               <string>Remove Selected</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="filesBtnSpacer">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+
+       <!-- Action Buttons Row -->
+       <item>
+        <layout class="QHBoxLayout" name="createActionLayout">
+         <item>
+          <widget class="QPushButton" name="create_guide_btn">
+           <property name="text">
+            <string>Create Guide</string>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">font-weight: bold; padding: 6px 16px;</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="clear_form_btn">
+           <property name="text">
+            <string>Clear</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="open_dir_btn">
+           <property name="text">
+            <string>Open Training Folder</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="createActionSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+
+       <!-- Status Label -->
+       <item>
+        <widget class="QLabel" name="guide_status_label">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+
+       <!-- Bottom spacer -->
+       <item>
+        <spacer name="createBottomSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+
+      </layout>
+     </widget>
+     <!-- END Create Guide Tab -->
+
+     <!-- ===== BROWSE GUIDES TAB ===== -->
+     <widget class="QWidget" name="browseGuidesTab">
+      <attribute name="title">
+       <string>Browse Guides</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="browseLayout">
+       <property name="spacing">
+        <number>5</number>
+       </property>
+       <property name="leftMargin">
+        <number>5</number>
+       </property>
+       <property name="topMargin">
+        <number>5</number>
+       </property>
+       <property name="rightMargin">
+        <number>5</number>
+       </property>
+       <property name="bottomMargin">
+        <number>5</number>
+       </property>
+
+       <!-- Search Row -->
+       <item>
+        <layout class="QHBoxLayout" name="searchLayout">
+         <item>
+          <widget class="QLabel" name="searchLabel">
+           <property name="text">
+            <string>Search:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="search_edit">
+           <property name="placeholderText">
+            <string>Filter by title or category...</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="search_btn">
+           <property name="text">
+            <string>Search</string>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>70</width>
+             <height>16777215</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="clear_search_btn">
+           <property name="text">
+            <string>Clear</string>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>60</width>
+             <height>16777215</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="refresh_btn">
+           <property name="text">
+            <string>Refresh</string>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>70</width>
+             <height>16777215</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+
+       <!-- Main Splitter: Tree + File Detail -->
+       <item>
+        <widget class="QSplitter" name="browseSplitter">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+
+         <!-- Guide Tree -->
+         <widget class="QTreeWidget" name="guide_tree">
+          <property name="minimumSize">
+           <size>
+            <width>300</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="alternatingRowColors">
+           <bool>true</bool>
+          </property>
+          <column>
+           <property name="text">
+            <string>Training Guide</string>
+           </property>
+          </column>
+         </widget>
+
+         <!-- File Detail Panel -->
+         <widget class="QGroupBox" name="fileDetailGroup">
+          <property name="title">
+           <string>Files in Selected Guide</string>
+          </property>
+          <layout class="QVBoxLayout" name="fileDetailLayout">
+           <property name="spacing">
+            <number>5</number>
+           </property>
+           <property name="leftMargin">
+            <number>8</number>
+           </property>
+           <property name="topMargin">
+            <number>8</number>
+           </property>
+           <property name="rightMargin">
+            <number>8</number>
+           </property>
+           <property name="bottomMargin">
+            <number>8</number>
+           </property>
+           <item>
+            <widget class="QListWidget" name="guide_files_detail"/>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="detailBtnLayout">
+             <item>
+              <widget class="QPushButton" name="open_guide_btn">
+               <property name="text">
+                <string>Open Folder</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="view_file_btn">
+               <property name="text">
+                <string>Open File</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="detailBtnSpacer">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+
+        </widget>
+       </item>
+
+       <!-- Bottom Status Row -->
+       <item>
+        <layout class="QHBoxLayout" name="browseStatusLayout">
+         <item>
+          <widget class="QLabel" name="selected_guide_label">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="browseStatusSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QLabel" name="browse_status_label">
+           <property name="text">
+            <string/>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">color: #666;</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+
+      </layout>
+     </widget>
+     <!-- END Browse Guides Tab -->
+
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
