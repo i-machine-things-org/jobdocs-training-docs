@@ -8,11 +8,16 @@ This module handles:
 - Metadata tracking (category, revision, description)
 
 Requires 'training_docs_dir' to be set in JobDocs settings.
+
+Drag-and-drop diagnostics are written to:
+  %TEMP%\jobdocs_training_drag.log
 """
 
 import os
 import json
 import shutil
+import logging
+import tempfile
 from pathlib import Path
 from datetime import datetime
 from typing import List
@@ -29,6 +34,20 @@ from shared.utils import open_folder, sanitize_filename
 
 CATEGORIES = ["General", "Safety", "Equipment", "Process", "Quality", "SOP", "Other"]
 META_FILENAME = "training_meta.json"
+
+_LOG_PATH = Path(tempfile.gettempdir()) / "jobdocs_training_drag.log"
+
+def _setup_logger() -> logging.Logger:
+    logger = logging.getLogger("training_docs.drag")
+    if logger.handlers:
+        return logger
+    logger.setLevel(logging.DEBUG)
+    fh = logging.FileHandler(_LOG_PATH, encoding="utf-8")
+    fh.setFormatter(logging.Formatter("%(asctime)s %(levelname)-8s %(message)s", datefmt="%Y-%m-%d %H:%M:%S"))
+    logger.addHandler(fh)
+    return logger
+
+_log = _setup_logger()
 
 
 class TrainingDocsModule(BaseModule):
@@ -57,6 +76,8 @@ class TrainingDocsModule(BaseModule):
         # State
         self.guide_files: List[str] = []
         self._selected_guide_path: str | None = None
+
+        _log.info("TrainingDocsModule initialised — log: %s", _LOG_PATH)
 
     def get_name(self) -> str:
         return "Training Docs"
@@ -101,9 +122,18 @@ class TrainingDocsModule(BaseModule):
         widget.clear_form_btn.clicked.connect(self.clear_form)
         widget.open_dir_btn.clicked.connect(self.open_training_dir)
 
+        # Attach drag-and-drop to both the root widget AND the file list widget.
+        # Child widgets absorb events and do not propagate to the parent, so the
+        # root-only approach is hit-and-miss depending on exactly where the user drops.
         widget.setAcceptDrops(True)
         widget.dragEnterEvent = self._drag_enter
         widget.dropEvent = self._drop_event
+
+        self.guide_files_list.setAcceptDrops(True)
+        self.guide_files_list.dragEnterEvent = self._drag_enter
+        self.guide_files_list.dropEvent = self._drop_event
+
+        _log.info("Drag-and-drop wired to root widget AND guide_files_list")
 
         # ===== Browse Tab =====
         self.search_edit = widget.search_edit
@@ -136,7 +166,7 @@ class TrainingDocsModule(BaseModule):
         if not p.exists():
             try:
                 p.mkdir(parents=True)
-            except Exception as e:
+            except OSError as e:
                 self.show_error("Directory Error", f"Could not create training docs directory:\n{e}")
                 return None
         return p
@@ -182,19 +212,82 @@ class TrainingDocsModule(BaseModule):
                 self.guide_files_list.takeItem(row)
                 del self.guide_files[row]
 
+    # ==================== Drag and Drop ====================
+
     def _drag_enter(self, event):
-        if event.mimeData().hasUrls():
+        mime = event.mimeData()
+        formats = mime.formats()
+
+        _log.info("--- dragEnterEvent fired ---")
+        _log.info("  MIME formats available (%d): %s", len(formats), formats)
+        _log.info("  hasUrls=%s  hasText=%s  hasHtml=%s",
+                  mime.hasUrls(), mime.hasText(), mime.hasHtml())
+
+        if mime.hasUrls():
+            urls = mime.urls()
+            _log.info("  URLs (%d):", len(urls))
+            for u in urls:
+                _log.info("    scheme=%r  toLocalFile=%r  toString=%r",
+                          u.scheme(), u.toLocalFile(), u.toString())
             event.acceptProposedAction()
+            _log.info("  -> ACCEPTED (has URLs)")
         else:
+            _log.warning("  -> IGNORED (no URLs — possible Outlook/email drag)")
+            _log.warning("     To support email attachments, handle FileGroupDescriptor MIME type")
             event.ignore()
 
     def _drop_event(self, event):
-        for url in event.mimeData().urls():
-            file_path = url.toLocalFile()
-            if file_path and os.path.isfile(file_path):
-                if file_path not in self.guide_files:
-                    self.guide_files.append(file_path)
-                    self.guide_files_list.addItem(os.path.basename(file_path))
+        mime = event.mimeData()
+        formats = mime.formats()
+
+        _log.info("--- dropEvent fired ---")
+        _log.info("  MIME formats available (%d): %s", len(formats), formats)
+
+        added = []
+        skipped_not_file = []
+        skipped_duplicate = []
+
+        if mime.hasUrls():
+            for url in mime.urls():
+                raw = url.toString()
+                local = url.toLocalFile()
+                _log.info("  URL: scheme=%r  toString=%r  toLocalFile=%r",
+                          url.scheme(), raw, local)
+
+                if not local:
+                    _log.warning("    -> toLocalFile() returned empty — skipping (scheme not file://)")
+                    skipped_not_file.append(raw)
+                    continue
+
+                if not os.path.isfile(local):
+                    is_dir = os.path.isdir(local)
+                    _log.warning("    -> path is not a file (isdir=%s) — skipping: %r", is_dir, local)
+                    skipped_not_file.append(local)
+                    continue
+
+                if local in self.guide_files:
+                    _log.info("    -> duplicate, already in list — skipping: %r", local)
+                    skipped_duplicate.append(local)
+                    continue
+
+                self.guide_files.append(local)
+                self.guide_files_list.addItem(os.path.basename(local))
+                added.append(local)
+                _log.info("    -> ADDED: %r", local)
+        else:
+            _log.warning("  No URLs in drop event — possible Outlook attachment drag")
+            _log.warning("  Available formats for future handling: %s", formats)
+
+        _log.info("  Drop summary: added=%d  skipped_not_file=%d  skipped_duplicate=%d",
+                  len(added), len(skipped_not_file), len(skipped_duplicate))
+
+        if added:
+            self.guide_status_label.setText(
+                f"{len(added)} file(s) added via drag-and-drop"
+            )
+            self.guide_status_label.setStyleSheet("color: green;")
+
+    # ==================== Guide Creation ====================
 
     def create_guide(self):
         """Create the training guide folder with metadata and files"""
@@ -261,7 +354,7 @@ class TrainingDocsModule(BaseModule):
             self.clear_form()
             self.refresh_guide_tree()
 
-        except Exception as e:
+        except OSError as e:
             self.show_error("Error", f"Failed to create guide:\n{e}")
 
     def clear_form(self):
@@ -337,7 +430,7 @@ class TrainingDocsModule(BaseModule):
                         display = f"{guide_num} – {title}"
                         if revision:
                             display += f"  (Rev {revision})"
-                    except Exception:
+                    except (OSError, json.JSONDecodeError):
                         category = 'General'
                         display = item.name
                 else:
@@ -390,7 +483,6 @@ class TrainingDocsModule(BaseModule):
         self.selected_guide_label.setText(f"Selected: {item.text(0)}")
         self.selected_guide_label.setStyleSheet("color: green;")
 
-        # List files in the guide folder (skip the meta file)
         try:
             guide_path = Path(path)
             for f in sorted(guide_path.iterdir()):
@@ -402,7 +494,6 @@ class TrainingDocsModule(BaseModule):
     def open_selected_guide(self):
         """Open the selected guide's folder in file explorer"""
         if not self._selected_guide_path:
-            # Nothing selected — fall back to training dir
             self.open_training_dir()
             return
 
