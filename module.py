@@ -2,12 +2,11 @@
 Training Docs Module - Create and Track Training Guides
 
 This module handles:
+- Configuring the training guides folder (browse button in the header bar)
 - Creation of new training guide folders
 - Browsing existing guides grouped by category
 - File management for each guide
 - Metadata tracking (category, revision, description)
-
-Requires 'training_docs_dir' to be set in JobDocs settings.
 """
 
 import os
@@ -47,6 +46,9 @@ class TrainingDocsModule(BaseModule):
         self.guide_files_list = None
         self.guide_status_label = None
 
+        # Folder config bar (persistent across tabs)
+        self.training_dir_edit = None
+
         # Browse tab widget refs
         self.search_edit = None
         self.guide_tree = None
@@ -81,6 +83,13 @@ class TrainingDocsModule(BaseModule):
     def _create_widget(self) -> QWidget:
         widget = QWidget()
         uic.loadUi(str(self._get_ui_path()), widget)
+
+        # ===== Folder Config Bar =====
+        self.training_dir_edit = widget.training_dir_edit
+        saved_dir = self.app_context.get_setting('training_docs_dir', '')
+        if saved_dir:
+            self.training_dir_edit.setText(saved_dir)
+        widget.browse_dir_btn.clicked.connect(self.browse_training_dir)
 
         # ===== Create Guide Tab =====
         self.guide_number_edit = widget.guide_number_edit
@@ -123,13 +132,28 @@ class TrainingDocsModule(BaseModule):
         self.refresh_guide_tree()
         return widget
 
+    def browse_training_dir(self):
+        """Let the user choose the training guides root folder"""
+        current = self.app_context.get_setting('training_docs_dir', '')
+        chosen = QFileDialog.getExistingDirectory(
+            self._widget,
+            "Select Training Guides Folder",
+            current or ""
+        )
+        if chosen:
+            self.training_dir_edit.setText(chosen)
+            self.app_context.set_setting('training_docs_dir', chosen)
+            self.app_context.save_settings()
+            self.log_message(f"Training docs folder set: {chosen}")
+            self.refresh_guide_tree()
+
     def _get_training_dir(self) -> Path | None:
         dir_path = self.app_context.get_setting('training_docs_dir', '')
         if not dir_path:
             self.show_error(
-                "Not Configured",
-                "Training docs directory is not configured.\n\n"
-                "Add 'training_docs_dir' in Settings."
+                "No Folder Set",
+                "Training guides folder is not configured.\n\n"
+                "Use the Browse button at the top to choose a folder."
             )
             return None
         p = Path(dir_path)
@@ -137,7 +161,7 @@ class TrainingDocsModule(BaseModule):
             try:
                 p.mkdir(parents=True)
             except Exception as e:
-                self.show_error("Directory Error", f"Could not create training docs directory:\n{e}")
+                self.show_error("Directory Error", f"Could not create training guides folder:\n{e}")
                 return None
         return p
 
@@ -286,8 +310,9 @@ class TrainingDocsModule(BaseModule):
                 self.show_error("Error", error or "Could not open folder")
         else:
             self.show_error(
-                "Not Configured",
-                "Training docs directory not configured or does not exist."
+                "No Folder Set",
+                "Training guides folder not configured or does not exist.\n\n"
+                "Use the Browse button at the top to choose a folder."
             )
 
     # ==================== Browse Tab ====================
